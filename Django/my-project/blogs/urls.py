@@ -19,6 +19,8 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path("", views.BlogListCreate.as_view()),
-    path("<int:pk>", views.BlogDetail.as_view()),
+    path("blog/", views.BlogListCreate.as_view()),
+    path("blog/<int:pk>", views.BlogDetail.as_view()),
+    path("comment/", views.CommentListCreate.as_view()),
+    path("comment/<int:pk>", views.CommentDetail.as_view()),
 ]
