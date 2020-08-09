@@ -19,23 +19,18 @@ class CommentDetailSerializer(serializers.ModelSerializer):
         model = Comment
         fields = '__all__'
 
-class BlogSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Blog
-        fields = '__all__'
-
-    def update(self, validated_data, *args, **kwargs):
-        validated_data["author"] = self.context["request"].user
-        return super().update(validated_data, *args, **kwargs)
-
 class BlogListSerializer(serializers.ModelSerializer):
 
-    author = UserSerializer()
+    author = UserSerializer(required=False)
     class Meta:
         model = Blog
         fields = '__all__'
         read_only_fields = ["author"]
+
+    def create(self, validated_data, *args, **kwargs):
+        validated_data["author"] = self.context["request"].user
+        return super().create(validated_data, *args, **kwargs)
+
 
 class BlogDetailSerializer(serializers.ModelSerializer):
 

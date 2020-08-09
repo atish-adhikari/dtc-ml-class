@@ -36,8 +36,9 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("hello/", hello),
+    path("", hello),
     path('', include('blogs.urls')),
+    path('ml/', include('ml.urls')),
 
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

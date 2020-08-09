@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from .models import Blog, Comment
-from .serializers import BlogSerializer, BlogListSerializer, BlogDetailSerializer, CommentSerializer
+from .serializers import BlogListSerializer, BlogDetailSerializer, CommentSerializer
 from .permissions import IsAuthor, ReadOnly
 from rest_framework import generics
 
@@ -21,27 +21,35 @@ def hello(request):
 
 
 class BlogListCreate(generics.ListCreateAPIView):
+    """
+    get: Returns list of all blogs, with nested author details.
+
+    post: Creates a blog post
+    """
     permission_classes  = [IsAuthenticatedOrReadOnly]
     queryset = Blog.objects.all()
+    serializer_class =  BlogListSerializer
 
-    def get_serializer_class(self, *args, **kwargs):
-        if self.request.method == "GET":
-            return BlogListSerializer
-        return BlogSerializer
 
-    def post(self, request, *args, **kwargs):
-        request.data["author"] = request.user.id
-        return super(BlogListCreate, self).post(request, *args, **kwargs)
+    # def post(self, request, *args, **kwargs):
+    #     request.data["author"] = request.user.id
+    #     return super(BlogListCreate, self).post(request, *args, **kwargs)
 
 
 class BlogDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    get: Returns a blog, with nested author details and all comments
+    put: Updates a blog post
+    patch: Partially Updates a blog post
+    delete: Deletes a blog post
+    """
     queryset = Blog.objects.all()
     permission_classes = [IsAuthor | ReadOnly]
     
     def get_serializer_class(self, *args, **kwargs):
         if self.request.method == "GET":
             return BlogDetailSerializer
-        return BlogSerializer
+        return BlogListSerializer
 
 
 class CommentListCreate(generics.ListCreateAPIView):
