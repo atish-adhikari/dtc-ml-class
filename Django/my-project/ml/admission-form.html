@@ -70,21 +70,19 @@
 
     $("#prediction").hide();
 
-    var data = $("#admission").serializeObject();
-    console.log(data);
-
     $("#admission").on("submit", function(e){
+        var data = $("#admission").serializeObject();
+
         e.preventDefault();
-        
+
         $.ajax({
             url: "http://localhost:8000/ml/",
             type: "POST",
-            async: false,
             dataType: "json",
             crossDomain: true,
             data: data,
             success: function(res){
-                alert(res)
+                alert(res["chance"])
             },
             error: function(res){
                 alert("error")
