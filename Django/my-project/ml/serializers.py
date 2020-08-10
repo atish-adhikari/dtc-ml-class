@@ -8,3 +8,7 @@ class AdmissionSerializer(serializers.Serializer):
     lor = serializers.FloatField(required=True, min_value=0, max_value=5)
     cgpa = serializers.FloatField(required=True, min_value=0, max_value=10)
     research = serializers.IntegerField(required=True, min_value=0, max_value=1)
+
+
+class ImageSerializer(serializers.Serializer):
+    image = serializers.ImageField(required=True)

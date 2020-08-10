@@ -1,19 +1,19 @@
 from django.shortcuts import render
-from .serializers import AdmissionSerializer
+from .serializers import AdmissionSerializer, ImageSerializer
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework import status
+import numpy as np
 import os
-import numpy
-
 import pickle
+from .utils import get_model, get_cnn, infer, get_le_clf
+from PIL import Image
 
-this_dir = os.path.dirname(os.path.abspath(__file__)) 
+model = get_model()
 
-pipeline_file = os.path.join(this_dir, "saved_models", "ml_pipeline.pkl")
-f = open(pipeline_file, "rb")
-model = pickle.load(f)
-f.close()
+cnn, decode_prediction = get_cnn()
+
+le, clf = get_le_clf()
 
 class AdmissionPredict(GenericAPIView):
 
@@ -29,6 +29,52 @@ class AdmissionPredict(GenericAPIView):
 
         sample = [list(serialized.data.values())]
         prediction = model.predict(sample)
-        out = prediction[0].round(4) * 100
-        return Response({"chance": out})
+        admission_chance = prediction[0].round(4) * 100
+        return Response({"chance": admission_chance})
+
+
+
+class ImagePredict(GenericAPIView):
+
+    serializer_class = ImageSerializer
+    
+    def post(self, request):
+        """
+        Returns prediction for image uploaded 
+        """
+        serialized = ImageSerializer(data=request.data)
+        if not serialized.is_valid():
+            return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        img = Image.open(request.FILES["image"])
+        img = img.resize((299, 299))
+        img = np.array(img)
+        img = img / 255
+        img = img.reshape(1,299,299,3)
+
+        predictions = cnn.predict(img)
+        predictions = decode_prediction(predictions)
+
+        out = {"name": predictions[0][0][1], "probability": round(predictions[0][0][2] * 100, 2)}
         
+        return Response(out)
+
+
+class FacePredict(GenericAPIView):
+
+    serializer_class = ImageSerializer
+    
+    def post(self, request):
+        """
+        Returns prediction for image uploaded 
+        """
+        serialized = ImageSerializer(data=request.data)
+        if not serialized.is_valid():
+            return Response(serialized.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        img = Image.open(request.FILES["image"])
+        pred = infer(le, clf, img)
+        return Response(pred)
+
+
+    

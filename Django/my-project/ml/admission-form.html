@@ -56,14 +56,7 @@
         var o = {};
         var a = this.serializeArray();
         $.each(a, function() {
-            if (o[this.name]) {
-                if (!o[this.name].push) {
-                    o[this.name] = [o[this.name]];
-                }
-                o[this.name].push(this.value || '');
-            } else {
-                o[this.name] = this.value || '';
-            }
+            o[this.name] = this.value || 0;
         });
         return o;
     };
@@ -79,12 +72,12 @@
             url: "http://localhost:8000/ml/",
             type: "POST",
             dataType: "json",
-            crossDomain: true,
             data: data,
             success: function(res){
-                alert(res["chance"])
+                $("#prediction").show()
+                $("#prediction").html(`Chances: ${res["chance"]}`)
             },
-            error: function(res){
+            error: function(err){
                 alert("error")
             }
         });

@@ -19,5 +19,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path("", views.AdmissionPredict.as_view()),
+    path("admission/", views.AdmissionPredict.as_view()),
+    path("image/", views.ImagePredict.as_view()),
+    path("face/", views.FacePredict.as_view()),
 ]

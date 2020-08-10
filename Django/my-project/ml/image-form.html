@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Image Prediction</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <h2 class="pt-2 col-6 offset-3"> Image Predict </h2>
+    <h2 class="pt-2 col-6 offset-3" id="prediction"></h2>
+    <form id="image-form" class="pt-2 col-6 offset-3" enctype="multipart/form-data">
+        <fieldset class="form-group">
+            <label>Image</label>
+            <input type="file" name="image"> 
+        </fieldset>
+        <figure style="height:350px; width:auto;">
+            <img id="preview" class="img img-fluid">
+        </figure>
+
+        <div class="pt-2 row">
+            <button class="ml-auto btn btn-primary" type="submit">Predict</button>
+        </div>
+    </form>
+</div>
+
+<script>
+
+
+function readURL(input) {
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+    
+    reader.onload = function(e) {
+      $('#preview').attr('src', e.target.result);
+    }
+    
+    reader.readAsDataURL(input.files[0]); // convert to base64 string
+  }
+}
+
+$('[name="image"]').change(function() {
+  readURL(this);
+});
+
+
+    $("#prediction").hide();
+
+    $("#image-form").on("submit", async function(e){
+
+        e.preventDefault();
+
+        var form = $('#image-form')[0];
+        var formData = new FormData(form);
+        formData.append('image', $('input[type=file]')[0].files[0]); 
+
+        var res = await $.ajax({
+            url: "http://localhost:8000/ml/image/",
+            type: "POST",
+            data: formData,
+            contentType: false, 
+            processData: false
+        });
+
+        if(!res){
+            alert("error")
+        }
+
+        $("#prediction").show()
+        $("#prediction").html(`Name: ${res["name"]} <br> Probability: ${res["probability"]}`)
+
+    })
+
+
+</script>
+
+</body>
+</html> 
